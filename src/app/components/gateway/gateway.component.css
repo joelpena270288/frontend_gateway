@@ -1,0 +1,12 @@
+table {
+    width: 60%;
+    margin-left: 70px;
+    align-items: center;
+  }
+  
+  .mat-form-field {
+    margin-left: 70px;
+    margin-top: 50px;
+    font-size: 18px;
+    width: 20%;
+  }
