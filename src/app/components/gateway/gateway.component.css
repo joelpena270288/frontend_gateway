@@ -5,8 +5,12 @@ table {
   }
   
   .mat-form-field {
-    margin-left: 70px;
+    margin-left: 140px;
     margin-top: 50px;
     font-size: 18px;
     width: 20%;
+    align-items: center;
+  }
+  .init-table{
+    margin-left: 70px;
   }

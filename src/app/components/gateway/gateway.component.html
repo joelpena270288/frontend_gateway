@@ -1,9 +1,13 @@
-<p>Gateways</p>
+<h1>Gateways</h1>
+<div class="init-table">
+  <button type="button" class="btn btn-primary" (click)="newGateway(addgateway)">Add Gateway</button>
+  <mat-form-field appearance="standard">
+    <mat-label>Search</mat-label>
+    <input matInput (keyup)="applyFilter($event)" placeholder="Ex. 192.168." #input>
+    
+  </mat-form-field>
+</div>
 
-<mat-form-field appearance="standard">
-  <mat-label>Search</mat-label>
-  <input matInput (keyup)="applyFilter($event)" placeholder="Ex. 192.168." #input>
-</mat-form-field>
 
 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
 
@@ -34,7 +38,7 @@
   <ng-container matColumnDef="Actions">
     <th mat-header-cell *matHeaderCellDef> Actions </th>
    
-    <td mat-cell *matCellDef="let element"><button class="btn btn-outline-primary" (click)="open(content,element.position)">{{element.Actions[0]}}</button> <button class="btn btn-outline-danger" (click)="open(content, element.position)" >{{element.Actions[1]}}</button> </td>
+    <td mat-cell *matCellDef="let element"><button class="btn btn-outline-primary" (click)="viewGateway(viewgateway,element.id)">{{element.Actions[0]}}</button> <button class="btn btn-outline-danger" (click)="open(deletegateway, element.position)" >{{element.Actions[1]}}</button> </td>
     
   </ng-container>
   
@@ -47,8 +51,8 @@
     <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
   </tr>
 </table>
-
-<ng-template #content let-c="close" let-d="dismiss">
+<!--Confirm delete gateway-->
+<ng-template #deletegateway let-c="close" let-d="dismiss">
   <div class="modal-header">
     <h4 class="modal-title" id="modal-basic-title">Delete</h4>
     <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
@@ -60,9 +64,245 @@
   </div>
   <div class="modal-footer">
     <button type="button"  class="btn btn-outline-dark" (click)="c('Save click')">Cancel</button>
-    <button type="button" class="btn btn-outline-success" (click)="DeleteGateway()">Save</button>
+    <button type="button" class="btn btn-outline-success" (click)="c(DeleteGateway())">Save</button>
   </div>
 </ng-template>
 
+<!--Add Gateway-->
+<ng-template #addgateway let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">New Gateway</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-row">
+        <div class="col-md-8 mb-3">
+          <label >Serial Number</label>
+          <input type="text" class="form-control"  placeholder="Serial Number"  name="serial_number" id="serial_number"[(ngModel)]="serial_number"required minlength="2" #serial="ngModel">
+          <div *ngIf="serial.invalid && (serial.dirty || serial.touched)"
+          class="alert">
+      
+        <div *ngIf="serial.errors?.['required']">
+          Serial Number is required
+        </div>
+        <div *ngIf="serial.errors?.['minlength']">
+          Serial Number must be at least 2 characters long.
+        </div>
+        <div *ngIf="serial.errors?.['forbiddenName']">
+          The serial number is not valid
+        </div>
+      
+      </div>
+        </div>
+        <div class="col-md-8 mb-3">
+          <label>Name</label>
+          <input type="text" class="form-control"  placeholder="Name"  name="name_gateway" id="name_gateway"[(ngModel)]="name_gateway" required minlength="1" #name="ngModel" >
+          <div *ngIf="name.invalid && (name.dirty || name.touched)"
+          class="alert">
+      
+        <div *ngIf="name.errors?.['required']">
+          Name is required
+        </div>
+        <div *ngIf="name.errors?.['minlength']">
+         Name must be at least 1 characters long.
+        </div>
+        <div *ngIf="name.errors?.['forbiddenName']">
+         Name is not valid
+        </div>
+      
+      </div>
+        </div>
+        <div class="col-md-8 mb-3">
+          <label>IPv4</label>
+          <input type="text" class="form-control"  placeholder="192.168.1.100" name="ip_gateway" id="ip_gateway"[(ngModel)]="ip_gateway" required minlength="7" #ip="ngModel" >
+          <div *ngIf="ip.invalid && (ip.dirty || ip.touched)"
+          class="alert">
+      
+        <div *ngIf="ip.errors?.['required']">
+          IPv4 is required
+        </div>
+        <div *ngIf="ip.errors?.['minlength']">
+         IPv4 must be at least 7 characters long.
+        </div>
+        <div *ngIf="name.errors?.['forbiddenName']">
+         Name is not valid
+        </div>
+      
+      </div>
+        </div>
+       
+      </div>
+      <hr/>
+      <div class="form-row">
+        <div class="col-md-12 mb-3">       
+          <div class="form-row">
+            <button class="btn btn-primary" (click)="newPeripheral(addperipheral)">Add Peripheral Device</button>
+           <p>You can add the peripheral devices or leave it blank</p>
+          </div>
+          
+          <table class="table table-striped">
+            <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">UID</th>
+              <th scope="col">Vendor</th>
+              <th scope="col">Date Created</th>
+              <th scope="col">Status</th>
+
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let peripheral of peripheral_device_data">
+              <th scope="row">{{ peripheral.id }}</th>
+              <td>
+               {{ peripheral.UID }}
+              </td>
+              <td>{{ peripheral.vendor}}</td>
+              <td>{{formatDate(peripheral.date_created)}}</td>
+              <td>{{ peripheral.status }}</td>
+            </tr>
+            </tbody>
+          </table>
+          
+          <div class="d-flex justify-content-between p-2">
+            
+                <ngb-pagination [collectionSize]="collectionSize" [(page)]="page" [pageSize]="pageSize" (pageChange)="refreshPeripheralDevice()"name="pagin">
+            </ngb-pagination>
+           
+           
+          
+            <select class="custom-select" style="width: auto" [(ngModel)]="pageSize" (ngModelChange)="refreshPeripheralDevice()" name="select">
+              <option [ngValue]="2">2 items per page</option>
+              <option [ngValue]="4">4 items per page</option>
+              <option [ngValue]="6">6 items per page</option>
+              <option [ngValue]="10">10 items per page</option>
+            </select>
+          </div>
+         
+        </div>
+    </div>    
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button"  class="btn btn-outline-dark" (click)="c(cleanPeripheral())">Cancel</button>
+    <button type="button" class="btn btn-outline-success" (click)="c(AddGateway())">Save</button>
+  </div>
+</ng-template>
+<!--Add Peripheral Device-->
+<ng-template #addperipheral let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Add Peripheral Device</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-row">
+        <div class="col-md-8 mb-3">
+          <label >UID</label>    
+         
+          <input  type="number" class="form-control"  placeholder="UID"  required name="uid" id="uid"[(ngModel)]="uid" required >
+         
+        </div>
+        <div class="col-md-8 mb-3">
+          <label>Vendor</label>                                                 
+          <input type="text" class="form-control"  placeholder="Vendor" name="vendor" id="vendor"[(ngModel)]="vendor" required minlength="2">
+      
+        </div>
+        <div class="col-md-8 mb-3">
+          <label>Date Created</label>
+          <input type="date" class="form-control"  placeholder="15/11/2021" required    name="date_created" id="date_created"[(ngModel)]="date_created">
+          <div class="valid-feedback">
+            Date Created
+          </div>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name= "checked" id="online"value="online" [(ngModel)]="online" checked >
+          <label class="form-check-label" for="online">Online</label>
+        </div>
+        <div class="form-check form-check-inline">
+          <input class="form-check-input" type="radio" name= "checked" id="offline"value="offline"[(ngModel)]="offline" >
+          <label class="form-check-label" for="offline">Offline</label>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button"  class="btn btn-outline-dark" (click)="c('Save click')">Cancel</button>
+    <button type="button" class="btn btn-outline-success" (click)="c(NewPeripheral())">Save</button>
+  </div>
+</ng-template>
+
+<!--  View Gateway-->
+<ng-template #viewgateway let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">View Gateway</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+  <p>Name: {{gatewaySelected.name}}</p>
+  <p>Serial Number: {{gatewaySelected.serial_number}}</p>
+  <p>IPv4: {{gatewaySelected.IPv4}} </p>
+  <h4>Peripheral Device</h4>
+  <button type="button" class="btn btn-primary" (click)="addOnePeripheral(addperipheral)">Add Peripheral Device</button>
+  <table class="table table-striped">
+    <thead>
+    <tr>      
+      <th scope="col">UID</th>
+      <th scope="col">Vendor</th>
+      <th scope="col">Date Created</th>
+      <th scope="col">Status</th>
+      <th scope="col">Action</th>
+
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let peripheral of gatewaySelected.peripherals_devices">
+     
+      <td>
+       {{ peripheral.UID }}
+      </td>
+      <td>{{ peripheral.vendor}}</td>
+      <td>{{formatDate(peripheral.date_created) }}</td>
+      <td>{{ peripheral.status }}</td>
+      <td>
+        <button class="btn btn-outline-danger" (click)="selectForDeletePeriperal(deleteperipheral,peripheral)">Delete</button>
+    
+      </td>
+      </tr>
+    </tbody>
+  </table>
+
+  
+  </div>
+
+  <div class="modal-footer">
+    <button type="button"  class="btn btn-outline-success" (click)="c('Save click')">Close</button>
+   
+  </div>
+</ng-template>
+<!--Confirm delete peripheral device-->
+<ng-template #deleteperipheral let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-basic-title">Delete</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <p>You are shure delete this Peripheral Device</p>
+  </div>
+  <div class="modal-footer">
+    <button type="button"  class="btn btn-outline-dark" (click)="c('Save click')">Cancel</button>
+    <button type="button" class="btn btn-outline-success" (click)="c(DeletePeriperal())">Save</button>
+  </div>
+</ng-template>
+<notifier-container></notifier-container>
 
 
